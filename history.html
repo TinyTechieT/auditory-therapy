@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">History - Auditory Therapy</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/therapy.css">
+    <link rel="stylesheet" href="css/history.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="index.html" id="brand-link">Auditory Therapy</a>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">Therapy ▼</a>
+                    <div class="dropdown-content">
+                        <a href="single-words.html">Single Words</a>
+                        <a href="word-pairs.html">Word Pairs</a>
+                        <a href="sentences.html">Sentences</a>
+                    </div>
+                </div>
+                <a href="how-to-use.html" class="nav-link">How to Use</a>
+                <a href="history.html" class="nav-link">History</a>
+                <a href="manage-categories.html" class="nav-link">Manage Categories</a>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="theme-toggle">
+                <button id="theme-toggle-btn" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="history-header">
+            <h1>Session History</h1>
+            <p class="page-description">View and analyze your therapy session progress.</p>
+            
+            <!-- Summary Stats -->
+            <div class="summary-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-sessions">0</div>
+                    <div class="stat-label">Total Sessions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-time">0h 0m</div>
+                    <div class="stat-label">Total Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avg-accuracy">0%</div>
+                    <div class="stat-label">Average Accuracy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="total-items">0</div>
+                    <div class="stat-label">Items Practiced</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Controls -->
+        <div class="history-controls">
+            <div class="filter-section">
+                <h2>Filter Sessions</h2>
+                <div class="filter-grid">
+                    <div class="filter-item">
+                        <label for="filter-type">Session Type:</label>
+                        <select id="filter-type">
+                            <option value="all">All Types</option>
+                            <option value="single-words">Single Words</option>
+                            <option value="word-pairs">Word Pairs</option>
+                            <option value="sentences">Sentences</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label for="filter-date">Date Range:</label>
+                        <select id="filter-date">
+                            <option value="all">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label for="sort-by">Sort By:</label>
+                        <select id="sort-by">
+                            <option value="date-desc">Newest First</option>
+                            <option value="date-asc">Oldest First</option>
+                            <option value="accuracy-desc">Best Accuracy</option>
+                            <option value="accuracy-asc">Lowest Accuracy</option>
+                            <option value="duration-desc">Longest Duration</option>
+                            <option value="duration-asc">Shortest Duration</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button id="apply-filters-btn" class="btn btn-primary">Apply Filters</button>
+                    <button id="clear-filters-btn" class="btn btn-secondary">Clear Filters</button>
+                </div>
+            </div>
+
+            <!-- Data Management -->
+            <div class="data-section">
+                <h2>Data Management</h2>
+                <div class="data-actions">
+                    <button id="export-json-btn" class="btn btn-success">Export JSON</button>
+                    <button id="export-csv-btn" class="btn btn-success">Export CSV</button>
+                    <label for="import-file" class="btn btn-secondary">Import Data</label>
+                    <input type="file" id="import-file" accept=".json" style="display: none;">
+                    <button id="clear-history-btn" class="btn btn-warning">Clear All History</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sessions List -->
+        <div class="sessions-section">
+            <div class="sessions-header">
+                <h2>Sessions (<span id="session-count">0</span>)</h2>
+                <div class="view-toggle">
+                    <button id="list-view-btn" class="btn btn-small active">List View</button>
+                    <button id="card-view-btn" class="btn btn-small">Card View</button>
+                </div>
+            </div>
+
+            <!-- No Sessions Message -->
+            <div id="no-sessions" class="no-sessions hidden">
+                <div class="no-sessions-content">
+                    <h3>No Sessions Found</h3>
+                    <p>You haven't completed any therapy sessions yet, or no sessions match your current filters.</p>
+                    <div class="no-sessions-actions">
+                        <a href="single-words.html" class="btn btn-primary">Start Your First Session</a>
+                        <button id="clear-filters-alt-btn" class="btn btn-secondary">Clear Filters</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sessions Container -->
+            <div id="sessions-container" class="sessions-container">
+                <!-- Sessions will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Session Detail Modal -->
+        <div id="session-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">Session Details</h3>
+                    <button id="close-modal-btn" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                    <!-- Session details will be populated by JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button id="modal-close-btn" class="btn btn-secondary">Close</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/history.js"></script>
+</body>
+</html>

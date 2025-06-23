@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Word Pairs - Auditory Therapy</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/therapy.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="index.html" id="brand-link">Auditory Therapy</a>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">Therapy ▼</a>
+                    <div class="dropdown-content">
+                        <a href="single-words.html">Single Words</a>
+                        <a href="word-pairs.html">Word Pairs</a>
+                        <a href="sentences.html">Sentences</a>
+                    </div>
+                </div>
+                <a href="how-to-use.html" class="nav-link">How to Use</a>
+                <a href="history.html" class="nav-link">History</a>
+                <a href="manage-categories.html" class="nav-link">Manage Categories</a>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="theme-toggle">
+                <button id="theme-toggle-btn" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <!-- Session Setup -->
+        <div id="setup-screen" class="setup-screen">
+            <h1>Word Pairs Therapy</h1>
+            <p class="page-description">Practice with pairs of words displayed together.</p>
+
+            <!-- Pair Type Selection -->
+            <div class="setup-section">
+                <h2>Pair Type</h2>
+                <div class="category-options">
+                    <label class="option-card">
+                        <input type="radio" name="pair-type" value="same-category" checked>
+                        <span class="option-title">Same Category Pairs</span>
+                        <span class="option-description">Both words from the same category</span>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="pair-type" value="different-category">
+                        <span class="option-title">Different Category Pairs</span>
+                        <span class="option-description">Words from different categories</span>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="pair-type" value="mixed">
+                        <span class="option-title">Mixed Pairs</span>
+                        <span class="option-description">Random mix of same and different category pairs</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Category Selection -->
+            <div class="setup-section">
+                <h2>Select Categories</h2>
+                <div class="category-options">
+                    <label class="option-card">
+                        <input type="radio" name="category-mode" value="select" checked>
+                        <span class="option-title">Choose Specific Categories</span>
+                        <span class="option-description">Pick which categories you want to practice</span>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="category-mode" value="random">
+                        <span class="option-title">Random from All Categories</span>
+                        <span class="option-description">Use words from all available categories</span>
+                    </label>
+                </div>
+
+                <!-- Category Selection Grid -->
+                <div id="category-grid" class="category-grid">
+                    <!-- Categories will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Session Settings -->
+            <div class="setup-section">
+                <h2>Session Settings</h2>
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <label for="pair-count">Number of Pairs:</label>
+                        <select id="pair-count">
+                            <option value="5">5 pairs</option>
+                            <option value="10" selected>10 pairs</option>
+                            <option value="15">15 pairs</option>
+                            <option value="20">20 pairs</option>
+                            <option value="25">25 pairs</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="track-time" checked>
+                            <span>Track session time</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start Button -->
+            <div class="start-section">
+                <button id="start-session-btn" class="btn btn-primary btn-large">Start Session</button>
+                <p class="word-count-display">Ready to practice with <span id="pair-count-display">10</span> word pairs</p>
+            </div>
+        </div>
+
+        <!-- Session Screen -->
+        <div id="session-screen" class="session-screen hidden">
+            <!-- Session Header -->
+            <div class="session-header">
+                <div class="session-info">
+                    <span id="session-timer" class="timer">00:00</span>
+                    <span class="session-stats">
+                        Correct: <span id="correct-count">0</span> | 
+                        Wrong: <span id="wrong-count">0</span> |
+                        Multiple Attempts: <span id="multiple-count">0</span>
+                    </span>
+                </div>
+                <div class="session-controls">
+                    <button id="pause-btn" class="btn btn-secondary">Pause</button>
+                    <button id="end-session-btn" class="btn btn-warning">End Session</button>
+                </div>
+            </div>
+
+            <!-- Pair Display -->
+            <div class="pair-display">
+                <div class="pair-container">
+                    <div class="word-pair">
+                        <span id="word-one" class="pair-word">Word 1</span>
+                        <span class="pair-separator">and</span>
+                        <span id="word-two" class="pair-word">Word 2</span>
+                    </div>
+                    <div class="pair-info">
+                        <span id="pair-categories" class="pair-categories"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Buttons -->
+            <div class="response-buttons">
+                <button id="correct-btn" class="btn btn-success btn-large">
+                    ✓ Correct
+                    <span class="keyboard-hint">Spacebar</span>
+                </button>
+                <button id="wrong-btn" class="btn btn-error btn-large">
+                    ✗ Wrong
+                    <span class="keyboard-hint">X</span>
+                </button>
+                <button id="multiple-btn" class="btn btn-warning btn-large">
+                    ↻ Multiple Attempts
+                    <span class="keyboard-hint">M</span>
+                </button>
+            </div>
+
+            <!-- Next Pair Button -->
+            <div class="next-section">
+                <button id="next-pair-btn" class="btn btn-primary btn-large">
+                    Next Pair
+                    <span class="keyboard-hint">Enter</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Pause Screen -->
+        <div id="pause-screen" class="pause-screen hidden">
+            <div class="pause-content">
+                <h2>Session Paused</h2>
+                <p>Take your time. Resume when ready.</p>
+                <div class="pause-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Time Elapsed:</span>
+                        <span id="pause-timer">00:00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Pairs Practiced:</span>
+                        <span id="pause-pair-count">0</span>
+                    </div>
+                </div>
+                <div class="pause-buttons">
+                    <button id="resume-btn" class="btn btn-primary">Resume Session</button>
+                    <button id="end-from-pause-btn" class="btn btn-warning">End Session</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="results-screen hidden">
+            <div class="results-content">
+                <h2>Session Complete!</h2>
+                <div class="results-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="final-duration">0:00</div>
+                        <div class="stat-label">Duration</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="final-total">0</div>
+                        <div class="stat-label">Total Pairs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="final-correct">0</div>
+                        <div class="stat-label">Correct</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="final-accuracy">0%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                </div>
+
+                <div class="results-actions">
+                    <button id="new-session-btn" class="btn btn-primary">Start New Session</button>
+                    <button id="view-history-btn" class="btn btn-secondary">View History</button>
+                    <button id="home-btn" class="btn btn-secondary">Back to Home</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/word-pairs.js"></script>
+</body>
+</html>

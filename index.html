@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Auditory Therapy</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="index.html" id="brand-link">Auditory Therapy</a>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">Therapy ▼</a>
+                    <div class="dropdown-content">
+                        <a href="single-words.html">Single Words</a>
+                        <a href="word-pairs.html">Word Pairs</a>
+                        <a href="sentences.html">Sentences</a>
+                    </div>
+                </div>
+                <a href="how-to-use.html" class="nav-link">How to Use</a>
+                <a href="history.html" class="nav-link">History</a>
+                <a href="manage-categories.html" class="nav-link">Manage Categories</a>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="theme-toggle">
+                <button id="theme-toggle-btn" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="hero-section">
+            <h1 id="main-heading">Welcome to Auditory Therapy</h1>
+            <p class="hero-description">
+                A simple, accessible tool to support auditory therapy sessions for people with hearing aids and cochlear implants.
+            </p>
+            <div class="cta-buttons">
+                <a href="single-words.html" class="btn btn-primary">Start Single Words</a>
+                <a href="word-pairs.html" class="btn btn-secondary">Try Word Pairs</a>
+                <a href="sentences.html" class="btn btn-secondary">Practice Sentences</a>
+            </div>
+        </div>
+
+        <div class="features-section">
+            <h2>Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>Customizable Sessions</h3>
+                    <p>Choose categories, select specific words, and control your session length.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Progress Tracking</h3>
+                    <p>Monitor your performance with detailed statistics and session history.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Accessible Design</h3>
+                    <p>Colorblind-friendly, dyslexic-friendly fonts, and responsive design.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 <span id="footer-brand">Auditory Therapy</span>. Built to support auditory therapy sessions.</p>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

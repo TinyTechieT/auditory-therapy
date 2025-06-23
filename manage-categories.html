@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Manage Categories - Auditory Therapy</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/therapy.css">
+    <link rel="stylesheet" href="css/manage-categories.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="index.html" id="brand-link">Auditory Therapy</a>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">Therapy ▼</a>
+                    <div class="dropdown-content">
+                        <a href="single-words.html">Single Words</a>
+                        <a href="word-pairs.html">Word Pairs</a>
+                        <a href="sentences.html">Sentences</a>
+                    </div>
+                </div>
+                <a href="how-to-use.html" class="nav-link">How to Use</a>
+                <a href="history.html" class="nav-link">History</a>
+                <a href="manage-categories.html" class="nav-link">Manage Categories</a>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="theme-toggle">
+                <button id="theme-toggle-btn" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="manage-categories">
+            <header class="page-header">
+                <h1>Manage Categories</h1>
+                <p class="page-subtitle">Create and manage custom word and sentence categories</p>
+            </header>
+
+            <!-- Category Type Tabs -->
+            <div class="category-tabs">
+                <button id="words-tab" class="tab-button active">Word Categories</button>
+                <button id="sentences-tab" class="tab-button">Sentence Categories</button>
+            </div>
+
+            <!-- Word Categories Section -->
+            <div id="words-section" class="category-section">
+                <div class="section-header">
+                    <h2>Word Categories</h2>
+                    <button id="add-word-category-btn" class="btn btn-primary">Add New Category</button>
+                </div>
+
+                <div class="categories-container">
+                    <div class="default-categories">
+                        <h3>Default Categories</h3>
+                        <div id="default-word-categories" class="categories-grid">
+                            <!-- Default categories will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="custom-categories">
+                        <h3>Custom Categories</h3>
+                        <div id="custom-word-categories" class="categories-grid">
+                            <!-- Custom categories will be populated by JavaScript -->
+                        </div>
+                        <div id="no-custom-words" class="no-categories hidden">
+                            <p>No custom word categories yet. Create your first one!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sentence Categories Section -->
+            <div id="sentences-section" class="category-section hidden">
+                <div class="section-header">
+                    <h2>Sentence Categories</h2>
+                    <button id="add-sentence-category-btn" class="btn btn-primary">Add New Category</button>
+                </div>
+
+                <div class="categories-container">
+                    <div class="default-categories">
+                        <h3>Default Categories</h3>
+                        <div id="default-sentence-categories" class="categories-grid">
+                            <!-- Default categories will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="custom-categories">
+                        <h3>Custom Categories</h3>
+                        <div id="custom-sentence-categories" class="categories-grid">
+                            <!-- Custom categories will be populated by JavaScript -->
+                        </div>
+                        <div id="no-custom-sentences" class="no-categories hidden">
+                            <p>No custom sentence categories yet. Create your first one!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Category Modal -->
+        <div id="category-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">Add Category</h3>
+                    <button id="close-modal-btn" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="category-form">
+                        <div class="form-group">
+                            <label for="category-name">Category Name:</label>
+                            <input type="text" id="category-name" required maxlength="50">
+                        </div>
+                        
+                        <div class="form-group" id="words-input-group">
+                            <label for="category-words">Words (one per line):</label>
+                            <textarea id="category-words" rows="10" placeholder="Enter words, one per line..."></textarea>
+                            <small class="form-help">Enter each word on a new line. Example:<br>apple<br>banana<br>orange</small>
+                        </div>
+
+                        <div class="form-group" id="sentences-input-group" style="display: none;">
+                            <label for="category-sentences">Sentences (one per line):</label>
+                            <textarea id="category-sentences" rows="10" placeholder="Enter sentences, one per line..."></textarea>
+                            <small class="form-help">Enter each sentence on a new line. Example:<br>How are you today?<br>What time is it?<br>Please sit down.</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancel-btn" class="btn btn-secondary">Cancel</button>
+                    <button id="save-category-btn" class="btn btn-primary">Save Category</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="delete-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Delete Category</h3>
+                    <button id="close-delete-modal-btn" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this category? This action cannot be undone.</p>
+                    <p><strong id="delete-category-name"></strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancel-delete-btn" class="btn btn-secondary">Cancel</button>
+                    <button id="confirm-delete-btn" class="btn btn-warning">Delete</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/manage-categories.js"></script>
+</body>
+</html>
