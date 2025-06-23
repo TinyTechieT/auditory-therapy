@@ -1,5 +1,10 @@
 /* Therapy Pages Specific Styles */
 
+.main-content {
+    width: 100%;
+    max-width: 1200px;
+}
+
 /* Utility Classes */
 .hidden {
     display: none !important;

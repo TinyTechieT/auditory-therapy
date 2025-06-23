@@ -1,9 +1,10 @@
 // Main JavaScript functionality
-document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
-});
+let appInitialized = false;
 
 function initializeApp() {
+    if (appInitialized) return;
+    appInitialized = true;
+
     // Initialize theme
     initializeTheme();
     
@@ -13,6 +14,19 @@ function initializeApp() {
     // Load user settings
     loadUserSettings();
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeApp();
+});
+
+// Fallback initialization if components don't load
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        if (!appInitialized) {
+            initializeApp();
+        }
+    }, 1000);
+});
 
 // Theme management
 function initializeTheme() {

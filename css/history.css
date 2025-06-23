@@ -1,5 +1,16 @@
 /* History Page Specific Styles */
 
+.history-header,
+.history-controls,
+.sessions-section {
+    max-width: 100%; /* Use full width of main-content container */
+}
+
+.main-content {
+    width: 100%;
+    max-width: 1200px;
+}
+
 /* History Header */
 .history-header {
     text-align: center;
