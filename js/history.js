@@ -81,8 +81,9 @@ class HistoryManager {
     updateSummaryStats() {
         const totalSessions = this.sessions.length;
         let totalDuration = 0;
-        let totalCorrect = 0;
-        let totalItems = 0;
+        let allResponses = [];
+        // let totalCorrect = 0;
+        // let totalItems = 0;
 
         this.sessions.forEach(session => {
             // Calculate duration
@@ -91,21 +92,25 @@ class HistoryManager {
                 const end = new Date(session.endTime);
                 totalDuration += (end - start) / 1000; // in seconds
             }
+            allResponses = allResponses.concat(session.responses);
 
-            // Calculate accuracy stats
-            session.responses.forEach(response => {
-                totalItems++;
-                if (response.response === 'correct') {
-                    totalCorrect++;
-                }
-            });
+            // // Calculate accuracy stats
+            // session.responses.forEach(response => {
+            //     totalItems++;
+            //     if (response.response === 'correct') {
+            //         totalCorrect++;
+            //     }
+            // });
         });
 
-        const avgAccuracy = totalItems > 0 ? Math.round((totalCorrect / totalItems) * 100) : 0;
+        // const avgAccuracy = totalItems > 0 ? Math.round((totalCorrect / totalItems) * 100) : 0;
+        const avgAccuracy = TherapyUtils.calculateAccuracy(allResponses);
+        const totalItems = allResponses.length; // ADD THIS LINE
 
         // Update display
         document.getElementById('total-sessions').textContent = totalSessions;
-        document.getElementById('total-time').textContent = this.formatDuration(totalDuration);
+        // document.getElementById('total-time').textContent = this.formatDuration(totalDuration);
+        document.getElementById('total-time').textContent = TherapyUtils.formatDisplayTime(totalDuration);
         document.getElementById('avg-accuracy').textContent = avgAccuracy + '%';
         document.getElementById('total-items').textContent = totalItems;
     }
@@ -154,9 +159,11 @@ class HistoryManager {
                 case 'date-asc':
                     return new Date(a.startTime) - new Date(b.startTime);
                 case 'accuracy-desc':
-                    return this.calculateAccuracy(b) - this.calculateAccuracy(a);
+                    // return this.calculateAccuracy(b) - this.calculateAccuracy(a);
+                    return TherapyUtils.calculateAccuracy(b.responses) - TherapyUtils.calculateAccuracy(a.responses);
                 case 'accuracy-asc':
-                    return this.calculateAccuracy(a) - this.calculateAccuracy(b);
+                    // return this.calculateAccuracy(a) - this.calculateAccuracy(b);
+                    return TherapyUtils.calculateAccuracy(a.responses) - TherapyUtils.calculateAccuracy(b.responses);
                 case 'duration-desc':
                     return this.calculateDuration(b) - this.calculateDuration(a);
                 case 'duration-asc':
@@ -248,10 +255,12 @@ class HistoryManager {
     }
 
     createSessionListItem(session) {
-        const accuracy = this.calculateAccuracy(session);
+        // const accuracy = this.calculateAccuracy(session);
+        const accuracy = TherapyUtils.calculateAccuracy(session.responses);
         const duration = this.calculateDuration(session);
         const date = new Date(session.startTime);
         const totalItems = session.responses.length;
+        const finalStats = TherapyUtils.calculateFinalStats(session.responses);
 
         return `
             <div class="session-item">
@@ -262,7 +271,7 @@ class HistoryManager {
                     </div>
                     <div class="session-meta">
                         <span>${totalItems} items</span>
-                        <span>${this.formatDuration(duration)}</span>
+                        <span>${TherapyUtils.formatDisplayTime(duration)}</span>
                         <span>Categories: ${session.settings.categories ? session.settings.categories.length : 'N/A'}</span>
                     </div>
                 </div>
@@ -272,11 +281,11 @@ class HistoryManager {
                         <div class="stat-name">Accuracy</div>
                     </div>
                     <div class="session-stat">
-                        <div class="stat-value">${session.responses.filter(r => r.response === 'correct').length}</div>
+                        <div class="stat-value">${finalStats.totalCorrect}</div>
                         <div class="stat-name">Correct</div>
                     </div>
                     <div class="session-stat">
-                        <div class="stat-value">${session.responses.filter(r => r.response === 'wrong').length}</div>
+                        <div class="stat-value">${finalStats.wrong}</div>
                         <div class="stat-name">Wrong</div>
                     </div>
                 </div>
@@ -285,10 +294,12 @@ class HistoryManager {
     }
 
     createSessionCard(session) {
-        const accuracy = this.calculateAccuracy(session);
+        const accuracy = TherapyUtils.calculateAccuracy(session.responses);
+        // const accuracy = this.calculateAccuracy(session);
         const duration = this.calculateDuration(session);
         const date = new Date(session.startTime);
         const totalItems = session.responses.length;
+        const finalStats = TherapyUtils.calculateFinalStats(session.responses);
 
         return `
             <div class="session-card">
@@ -307,11 +318,11 @@ class HistoryManager {
                         <div class="stat-name">Accuracy</div>
                     </div>
                     <div class="session-stat">
-                        <div class="stat-value">${session.responses.filter(r => r.response === 'correct').length}</div>
+                        <div class="stat-value">${finalStats.totalCorrect}</div>
                         <div class="stat-name">Correct</div>
                     </div>
                     <div class="session-stat">
-                        <div class="stat-value">${session.responses.filter(r => r.response === 'wrong').length}</div>
+                        <div class="stat-value">${finalStats.wrong}</div>
                         <div class="stat-name">Wrong</div>
                     </div>
                 </div>
@@ -324,20 +335,22 @@ class HistoryManager {
         const modalTitle = document.getElementById('modal-title');
         const modalBody = document.getElementById('modal-body');
 
-        const accuracy = this.calculateAccuracy(session);
+        const accuracy = TherapyUtils.calculateAccuracy(session.responses);
+        // const accuracy = this.calculateAccuracy(session);
         const duration = this.calculateDuration(session);
         const date = new Date(session.startTime);
+        const finalStats = TherapyUtils.calculateFinalStats(session.responses);
 
         modalTitle.textContent = `${this.formatSessionType(session.type)} Session - ${this.formatDate(date)}`;
 
-        const correctResponses = session.responses.filter(r => r.response === 'correct').length;
-        const wrongResponses = session.responses.filter(r => r.response === 'wrong').length;
-        const multipleResponses = session.responses.filter(r => r.response === 'multiple').length;
+        // const correctResponses = session.responses.filter(r => r.response === 'correct').length;
+        // const wrongResponses = session.responses.filter(r => r.response === 'wrong').length;
+        // const multipleResponses = session.responses.filter(r => r.response === 'multiple').length;
 
         modalBody.innerHTML = `
             <div class="modal-session-info">
                 <div class="modal-info-item">
-                    <div class="modal-info-value">${this.formatDuration(duration)}</div>
+                    <div class="modal-info-value">${TherapyUtils.formatDisplayTime(duration)}</div>
                     <div class="modal-info-label">Duration</div>
                 </div>
                 <div class="modal-info-item">
@@ -349,15 +362,15 @@ class HistoryManager {
                     <div class="modal-info-label">Total Items</div>
                 </div>
                 <div class="modal-info-item">
-                    <div class="modal-info-value">${correctResponses}</div>
+                    <div class="modal-info-value">${finalStats.correct}</div>
                     <div class="modal-info-label">Correct</div>
                 </div>
                 <div class="modal-info-item">
-                    <div class="modal-info-value">${wrongResponses}</div>
+                    <div class="modal-info-value">${finalStats.wrong}</div>
                     <div class="modal-info-label">Wrong</div>
                 </div>
                 <div class="modal-info-item">
-                    <div class="modal-info-value">${multipleResponses}</div>
+                    <div class="modal-info-value">${finalStats.multiple}</div>
                     <div class="modal-info-label">Multiple</div>
                 </div>
             </div>
@@ -422,11 +435,13 @@ class HistoryManager {
         ].join(',');
 
         const csvRows = sessions.map(session => {
-            const accuracy = this.calculateAccuracy(session);
+            const accuracy = TherapyUtils.calculateAccuracy(session.responses);
+            // const accuracy = this.calculateAccuracy(session);
             const duration = this.calculateDuration(session);
-            const correct = session.responses.filter(r => r.response === 'correct').length;
-            const wrong = session.responses.filter(r => r.response === 'wrong').length;
-            const multiple = session.responses.filter(r => r.response === 'multiple').length;
+            const finalStats = TherapyUtils.calculateFinalStats(session.responses);
+            // const correct = session.responses.filter(r => r.response === 'correct').length;
+            // const wrong = session.responses.filter(r => r.response === 'wrong').length;
+            // const multiple = session.responses.filter(r => r.response === 'multiple').length;
             const categories = session.settings.categories ? session.settings.categories.join(';') : '';
 
             return [
@@ -434,9 +449,9 @@ class HistoryManager {
                 session.type,
                 duration,
                 session.responses.length,
-                correct,
-                wrong,
-                multiple,
+                finalStats.correct,
+                finalStats.wrong,
+                finalStats.multiple,
                 accuracy,
                 categories
             ].join(',');
@@ -446,30 +461,90 @@ class HistoryManager {
         this.downloadFile(csvContent, 'auditory-therapy-sessions.csv', 'text/csv');
     }
 
+    // importData(file) {
+    //     if (!file) return;
+
+    //     const reader = new FileReader();
+    //     reader.onload = (e) => {
+    //         try {
+    //             const success = storage.importData(e.target.result);
+                
+    //             if (success) {
+    //                 alert('Data imported successfully!');
+    //                 this.loadSessions();
+    //                 this.updateSummaryStats();
+    //                 this.applyFilters();
+    //                 // this.displaySessions();
+
+    //                 // Reset the file input
+    //                 document.getElementById('import-file').value = '';
+    //             } else {
+    //                 alert('Failed to import data. Please check the file format.');
+    //             }
+    //         } catch (error) {
+    //             alert('Error importing data: ' + error.message);
+    //         }
+    //     };
+    //     reader.readAsText(file);
+    // }
+
     importData(file) {
         if (!file) return;
 
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
-                const success = storage.importData(e.target.result);
-                if (success) {
+                const importedData = JSON.parse(e.target.result);
+                
+                if (importedData.sessions) {
+                    // Get existing data
+                    const existingData = storage.getData();
+                    const existingSessions = existingData.sessions || [];
+                    
+                    // Merge sessions using timestamp logic
+                    const mergedSessions = this.mergeSessionData(existingSessions, importedData.sessions);
+                    
+                    // Update storage with merged data
+                    existingData.sessions = mergedSessions;
+                    storage.saveData(existingData);
+                    
                     alert('Data imported successfully!');
                     this.loadSessions();
                     this.updateSummaryStats();
                     this.applyFilters();
-                    // this.displaySessions();
-
+                    
                     // Reset the file input
                     document.getElementById('import-file').value = '';
                 } else {
-                    alert('Failed to import data. Please check the file format.');
+                    alert('Invalid data format. Please check the file.');
                 }
             } catch (error) {
                 alert('Error importing data: ' + error.message);
             }
         };
         reader.readAsText(file);
+    }
+
+    // Add this new method to HistoryManager class
+    mergeSessionData(existingSessions, importedSessions) {
+        // Create a map for quick lookup by timestamp
+        const sessionMap = new Map();
+        
+        // Add existing sessions
+        existingSessions.forEach(session => {
+            sessionMap.set(session.startTime, session);
+        });
+        
+        // Add/replace with imported sessions
+        importedSessions.forEach(session => {
+            sessionMap.set(session.startTime, session);
+        });
+        
+        // Convert back to array and sort by timestamp
+        const mergedSessions = Array.from(sessionMap.values());
+        mergedSessions.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+        
+        return mergedSessions;
     }
 
     clearHistory() {
@@ -483,11 +558,27 @@ class HistoryManager {
     }
 
     // Utility methods
-    calculateAccuracy(session) {
-        if (session.responses.length === 0) return 0;
-        const correct = session.responses.filter(r => r.response === 'correct').length;
-        return Math.round((correct / session.responses.length) * 100);
-    }
+    // calculateAccuracy(session) {
+    //     if (session.responses.length === 0) return 0;
+    //     const correct = session.responses.filter(r => r.response === 'correct').length;
+    //     return Math.round((correct / session.responses.length) * 100);
+    // }
+
+    // calculateAccuracy(session) {
+    //     if (session.responses.length === 0) return 0;
+        
+    //     let totalScore = 0;
+    //     session.responses.forEach(response => {
+    //         if (response.response === 'correct') {
+    //             totalScore += 1;
+    //         } else if (response.response === 'multiple') {
+    //             totalScore += 0.5;
+    //         }
+    //     });
+        
+    //     return Math.round((totalScore / session.responses.length) * 100);
+    // }
+
 
     calculateDuration(session) {
         if (!session.startTime || !session.endTime) return 0;
@@ -496,27 +587,27 @@ class HistoryManager {
         return Math.floor((end - start) / 1000); // in seconds
     }
 
-    formatDuration(seconds) {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const secs = Math.floor(seconds % 60);
-        const milliseconds = Math.round((seconds % 1) * 100); // Get 2 decimal places
+    // formatDuration(seconds) {
+    //     const hours = Math.floor(seconds / 3600);
+    //     const minutes = Math.floor((seconds % 3600) / 60);
+    //     const secs = Math.floor(seconds % 60);
+    //     const milliseconds = Math.round((seconds % 1) * 100); // Get 2 decimal places
         
-        if (hours > 0) {
-            // Format: HH:MM
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-            // return `${hours}h ${minutes}m`;
-        } else if (minutes > 0) {
-            // Format: MM:SS
-            return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            // return `${minutes}m ${secs}s`;
-        } else {
-            // Format: ss.ms (with 2 decimal places)
-            const totalSeconds = seconds.toFixed(2);
-            return `${totalSeconds}s`;
-            // return `${secs}s`;
-        }
-    }
+    //     if (hours > 0) {
+    //         // Format: HH:MM
+    //         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    //         // return `${hours}h ${minutes}m`;
+    //     } else if (minutes > 0) {
+    //         // Format: MM:SS
+    //         return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    //         // return `${minutes}m ${secs}s`;
+    //     } else {
+    //         // Format: ss.ms (with 2 decimal places)
+    //         const totalSeconds = seconds.toFixed(2);
+    //         return `${totalSeconds}s`;
+    //         // return `${secs}s`;
+    //     }
+    // }
 
     formatDate(date) {
         return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

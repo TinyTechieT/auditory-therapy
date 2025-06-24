@@ -60,6 +60,28 @@
                 </div>
             </div>
 
+            <!-- Word Selection (add this after category selection) -->
+            <div id="word-selection" class="setup-section">
+                <h2>Select Words</h2>
+                <div class="word-options">
+                    <label class="option-card">
+                        <input type="radio" name="word-mode" value="all" checked>
+                        <span class="option-title">Use All Words</span>
+                        <span class="option-description">Include all words from selected categories</span>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="word-mode" value="select">
+                        <span class="option-title">Choose Specific Words</span>
+                        <span class="option-description">Pick individual words to practice</span>
+                    </label>
+                </div>
+
+                <!-- Word Selection Grid -->
+                <div id="word-grid" class="word-grid">
+                    <!-- Words will be populated by JavaScript -->
+                </div>
+            </div>
+
             <!-- Session Settings -->
             <div class="setup-section">
                 <h2>Session Settings</h2>
@@ -192,6 +214,27 @@
                     </div>
                 </div>
 
+                <!-- Detailed Results -->
+                <div class="detailed-results">
+                    <h3>Session Details</h3>
+                    <div id="category-breakdown" class="category-breakdown">
+                        <!-- Category performance will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Add this after the existing detailed-results div -->
+                <div class="detailed-results">
+                    <h3>Session Details</h3>
+                    <div id="category-breakdown" class="category-breakdown">
+                        <!-- Category performance will be populated by JavaScript -->
+                    </div>
+                    
+                    <!-- Add this new section -->
+                    <div id="response-details" class="response-details">
+                        <!-- Response details will be populated by JavaScript -->
+                    </div>
+                </div>
+
                 <div class="results-actions">
                     <button id="new-session-btn" class="btn btn-primary">Start New Session</button>
                     <button id="view-history-btn" class="btn btn-secondary">View History</button>
@@ -205,6 +248,7 @@
 
     <script src="js/config.js"></script>
     <script src="js/storage.js"></script>
+    <script src="js/therapy-utils.js"></script> <!-- Add this line -->
     <script src="js/components.js"></script>
     <script src="js/main.js"></script>
     <script src="js/word-pairs.js"></script>

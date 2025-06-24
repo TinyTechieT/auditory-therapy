@@ -10,12 +10,19 @@ function initializeApp() {
     
     // Initialize mobile navigation
     initializeMobileNav();
+
+    // Initialize go to top button
+    initializeGoToTop();
     
     // Load user settings
     loadUserSettings();
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+// document.addEventListener('DOMContentLoaded', function() {
+//     initializeApp();
+// });
+
+document.addEventListener('componentsLoaded', function() {
     initializeApp();
 });
 
@@ -62,6 +69,31 @@ function updateThemeToggleIcon(theme) {
     }
 }
 
+// Go to Top Button functionality
+function initializeGoToTop() {
+    const goToTopBtn = document.getElementById('go-to-top');
+    
+    if (goToTopBtn) {
+        // Show/hide button based on scroll position
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 100) {
+                goToTopBtn.classList.add('visible');
+            } else {
+                goToTopBtn.classList.remove('visible');
+            }
+        });
+        
+        // Smooth scroll to top
+        goToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
+}
+
+
 // Mobile navigation
 function initializeMobileNav() {
     const navToggle = document.getElementById('nav-toggle');
@@ -91,29 +123,7 @@ function loadUserSettings() {
     }
 }
 
-// Utility functions
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-}
-
-function formatDuration(seconds) {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    
-    if (hours > 0) {
-        return `${hours}h ${minutes}m ${secs}s`;
-    } else if (minutes > 0) {
-        return `${minutes}m ${secs}s`;
-    } else {
-        return `${secs}s`;
-    }
-}
-
 // Export functions for use in other files
 window.AppUtils = {
-    formatDate,
-    formatDuration,
     storage
 };

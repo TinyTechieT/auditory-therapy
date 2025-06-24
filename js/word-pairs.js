@@ -25,8 +25,9 @@ class WordPairsSession {
         };
         
         this.initializeEventListeners();
-        this.loadCategories();
-        this.updatePairCount();
+        // this.loadCategories();
+        // this.updatePairCount();
+        TherapyUtils.initializeTherapyPage(this);
     }
 
     initializeEventListeners() {
@@ -35,11 +36,17 @@ class WordPairsSession {
             if (e.target.name === 'category-mode') {
                 this.handleCategoryModeChange(e.target.value);
             }
+            if (e.target.name === 'word-mode') {
+                this.handleWordModeChange(e.target.value);
+            }
             if (e.target.name === 'pair-type') {
                 this.updatePairCount();
             }
             if (e.target.type === 'checkbox' && e.target.closest('.category-grid')) {
                 this.handleCategorySelection();
+            }
+            if (e.target.type === 'checkbox' && e.target.closest('.word-grid')) {
+                this.handleWordSelection();
             }
             if (e.target.id === 'pair-count') {
                 this.updatePairCount();
@@ -143,6 +150,7 @@ class WordPairsSession {
 
     handleCategoryModeChange(mode) {
         const categoryGrid = document.getElementById('category-grid');
+        const wordSelection = document.getElementById('word-selection');
         
         if (mode === 'random') {
             categoryGrid.style.display = 'none';
@@ -151,10 +159,25 @@ class WordPairsSession {
             Object.keys(CONFIG.wordCategories).forEach(id => {
                 this.selectedCategories.add(id);
             });
+            this.loadWordsForSelection();
         } else {
             categoryGrid.style.display = 'grid';
             this.selectedCategories.clear();
             this.handleCategorySelection();
+        }
+        
+        this.updatePairCount();
+    }
+
+    handleWordModeChange(mode) {
+        const wordGrid = document.getElementById('word-grid');
+        
+        if (mode === 'all') {
+            wordGrid.style.display = 'none';
+            this.selectedWords.clear();
+        } else {
+            wordGrid.style.display = 'grid';
+            this.loadWordsForSelection();
         }
         
         this.updatePairCount();
@@ -168,7 +191,44 @@ class WordPairsSession {
             this.selectedCategories.add(checkbox.value);
         });
         
+        this.loadWordsForSelection();
         this.updatePairCount();
+    }
+
+    handleWordSelection() {
+        const checkedWords = document.querySelectorAll('#word-grid input[type="checkbox"]:checked');
+        this.selectedWords.clear();
+        
+        checkedWords.forEach(checkbox => {
+            this.selectedWords.add(checkbox.value);
+        });
+        
+        this.updatePairCount();
+    }
+
+    loadWordsForSelection() {
+        const wordGrid = document.getElementById('word-grid');
+        const wordMode = document.querySelector('input[name="word-mode"]:checked');
+        
+        if (!wordMode || wordMode.value !== 'select') return;
+        
+        wordGrid.innerHTML = '';
+        
+        const allCategories = { ...CONFIG.wordCategories, ...storage.getCustomCategories().words };
+        
+        this.selectedCategories.forEach(categoryId => {
+            if (allCategories[categoryId]) {
+                allCategories[categoryId].words.forEach(word => {
+                    const wordItem = document.createElement('label');
+                    wordItem.className = 'word-item';
+                    wordItem.innerHTML = `
+                        <input type="checkbox" value="${word}">
+                        ${word}
+                    `;
+                    wordGrid.appendChild(wordItem);
+                });
+            }
+        });
     }
 
     updatePairCount() {
@@ -181,6 +241,12 @@ class WordPairsSession {
     }
 
     startSession() {
+        // Check if categories are selected
+        if (this.selectedCategories.size === 0) {
+            alert('Please select at least one category before starting the session.');
+            return;
+        }
+
         if (!this.buildPairPool()) {
             alert('Please select at least one category to start the session.');
             return;
@@ -218,18 +284,42 @@ class WordPairsSession {
     buildPairPool() {
         const pairType = document.querySelector('input[name="pair-type"]:checked').value;
         const pairCount = parseInt(document.getElementById('pair-count').value);
+        const wordMode = document.querySelector('input[name="word-mode"]:checked')?.value || 'all';
         const allCategories = { ...CONFIG.wordCategories, ...storage.getCustomCategories().words };
         
         let availableWords = [];
         
         // Collect words from selected categories
-        this.selectedCategories.forEach(categoryId => {
-            if (allCategories[categoryId]) {
-                allCategories[categoryId].words.forEach(word => {
-                    availableWords.push({ word, category: categoryId });
-                });
-            }
-        });
+        // this.selectedCategories.forEach(categoryId => {
+        //     if (allCategories[categoryId]) {
+        //         allCategories[categoryId].words.forEach(word => {
+        //             availableWords.push({ word, category: categoryId });
+        //         });
+        //     }
+        // });
+
+        // Collect words based on selection
+        if (wordMode === 'select' && this.selectedWords.size > 0) {
+            availableWords = Array.from(this.selectedWords).map(word => {
+                let categoryId = '';
+                for (const [id, category] of Object.entries(allCategories)) {
+                    if (category.words.includes(word)) {
+                        categoryId = id;
+                        break;
+                    }
+                }
+                return { word, category: categoryId };
+            });
+        } else {
+            // Use all words from selected categories
+            this.selectedCategories.forEach(categoryId => {
+                if (allCategories[categoryId]) {
+                    allCategories[categoryId].words.forEach(word => {
+                        availableWords.push({ word, category: categoryId });
+                    });
+                }
+            });
+        }
         
         if (availableWords.length < 2) return false;
         
@@ -276,7 +366,8 @@ class WordPairsSession {
         const [categoryId, words] = validCategories[Math.floor(Math.random() * validCategories.length)];
         
         // Pick two different words from that category
-        const shuffledWords = this.shuffleArray([...words]);
+        const shuffledWords = TherapyUtils.shuffleArray([...words]);
+        // const shuffledWords = this.shuffleArray([...words]);
         
         return {
             word1: shuffledWords[0],
@@ -294,7 +385,8 @@ class WordPairsSession {
         }
         
         const categories = Array.from(this.selectedCategories);
-        const shuffledCategories = this.shuffleArray([...categories]);
+        const shuffledCategories = TherapyUtils.shuffleArray([...categories]);
+        // const shuffledCategories = this.shuffleArray([...categories]);
         
         const allCategories = { ...CONFIG.wordCategories, ...storage.getCustomCategories().words };
         
@@ -316,14 +408,14 @@ class WordPairsSession {
         };
     }
 
-    shuffleArray(array) {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
-    }
+    // shuffleArray(array) {
+    //     const shuffled = [...array];
+    //     for (let i = shuffled.length - 1; i > 0; i--) {
+    //         const j = Math.floor(Math.random() * (i + 1));
+    //         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    //     }
+    //     return shuffled;
+    // }
 
     displayCurrentPair() {
         if (this.pairPool.length === 0) return;
@@ -375,7 +467,7 @@ class WordPairsSession {
         // Auto-advance to next pair after a short delay
         setTimeout(() => {
             this.nextPair();
-        }, 500);
+        }, 200);
     }
 
     nextPair() {
@@ -437,14 +529,29 @@ class WordPairsSession {
         this.sessionData.endTime = new Date().toISOString();
         
         // Calculate final stats
-        const accuracy = this.stats.total > 0 ? Math.round((this.stats.correct / this.stats.total) * 100) : 0;
+
+        const finalStats = TherapyUtils.calculateFinalStats(this.sessionData.responses);
         const duration = this.timer.pausedTime || 0;
+
+        // const accuracy = this.stats.total > 0 ? Math.round((this.stats.correct / this.stats.total) * 100) : 0;
+        // const duration = this.timer.pausedTime || 0;
         
         // Update results screen
-        document.getElementById('final-duration').textContent = this.formatDuration(Math.floor(duration / 1000));
-        document.getElementById('final-total').textContent = this.stats.total;
-        document.getElementById('final-correct').textContent = this.stats.correct;
-        document.getElementById('final-accuracy').textContent = accuracy + '%';
+        document.getElementById('final-duration').textContent = TherapyUtils.formatDisplayTime(Math.floor(duration / 1000));
+        document.getElementById('final-total').textContent = finalStats.total;
+        document.getElementById('final-correct').textContent = finalStats.totalCorrect; // Show total correct including multiple
+        document.getElementById('final-accuracy').textContent = finalStats.accuracy + '%';
+
+        // document.getElementById('final-duration').textContent = this.formatDuration(Math.floor(duration / 1000));
+        // document.getElementById('final-total').textContent = this.stats.total;
+        // document.getElementById('final-correct').textContent = this.stats.correct;
+        // document.getElementById('final-accuracy').textContent = accuracy + '%';
+        
+        // Show detailed responses
+        this.displayDetailedResults();
+
+        // Show category breakdown
+        this.displayCategoryBreakdown();
         
         // Save session to storage
         storage.saveSession(this.sessionData);
@@ -452,9 +559,48 @@ class WordPairsSession {
         this.showScreen('results');
     }
 
+    displayDetailedResults() {
+        const detailsContainer = document.getElementById('response-details');
+        if (!detailsContainer) return;
+        
+        const responseDetails = TherapyUtils.generateResponseDetails(this.sessionData.responses);
+        
+        detailsContainer.innerHTML = `
+            <h4>Response Details (${responseDetails.length} items):</h4>
+            <div class="response-list">
+                ${responseDetails.map(detail => `
+                    <div class="response-item">
+                        <span class="response-text">${detail.text}</span>
+                        <span class="response-result ${detail.response}">${detail.response}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    displayCategoryBreakdown() {
+        const breakdown = document.getElementById('category-breakdown');
+        const allCategories = { ...CONFIG.wordCategories, ...storage.getCustomCategories().words };
+        
+        const categoryBreakdown = TherapyUtils.generateCategoryBreakdown(this.sessionData.responses, allCategories);
+        
+        breakdown.innerHTML = '';
+        
+        categoryBreakdown.forEach(category => {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'category-result';
+            resultDiv.innerHTML = `
+                <span>${category.categoryName}</span>
+                <span>${category.totalCorrect}/${category.total} (${category.accuracy}%)</span>
+            `;
+            breakdown.appendChild(resultDiv);
+        });
+    }
+
     resetToSetup() {
         // Reset all data
         this.selectedCategories.clear();
+        this.selectedWords.clear();
         this.pairPool = [];
         this.stats = { correct: 0, wrong: 0, multiple: 0, total: 0 };
         this.timer = { startTime: null, pausedTime: 0, interval: null, isRunning: false };
@@ -469,6 +615,9 @@ class WordPairsSession {
         document.querySelectorAll('input[name="category"]').forEach(cb => cb.checked = false);
         
         this.handleCategoryModeChange('select');
+        if (document.querySelector('input[name="word-mode"]')) {
+            this.handleWordModeChange('all');
+        }
         this.updatePairCount();
         
         this.showScreen('setup');
@@ -486,17 +635,17 @@ class WordPairsSession {
         this.currentScreen = screenName;
     }
 
-    formatDuration(seconds) {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const secs = seconds % 60;
+    // formatDuration(seconds) {
+    //     const hours = Math.floor(seconds / 3600);
+    //     const minutes = Math.floor((seconds % 3600) / 60);
+    //     const secs = seconds % 60;
         
-        if (hours > 0) {
-            return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        } else {
-            return `${minutes}:${secs.toString().padStart(2, '0')}`;
-        }
-    }
+    //     if (hours > 0) {
+    //         return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    //     } else {
+    //         return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    //     }
+    // }
 }
 
 // Initialize when page loads

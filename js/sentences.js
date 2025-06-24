@@ -26,8 +26,9 @@ class SentencesSession {
         };
         
         this.initializeEventListeners();
-        this.loadCategories();
-        this.updateSentenceCount();
+        // this.loadCategories();
+        // this.updateSentenceCount();
+        TherapyUtils.initializeTherapyPage(this);
     }
 
     initializeEventListeners() {
@@ -258,6 +259,12 @@ class SentencesSession {
     }
 
     startSession() {
+        // Check if categories are selected
+        if (this.selectedCategories.size === 0) {
+            alert('Please select at least one category before starting the session.');
+            return;
+        }
+
         if (!this.buildSentencePool()) {
             alert('Please select at least one category or sentence to start the session.');
             return;
@@ -327,7 +334,8 @@ class SentencesSession {
         if (availableSentences.length === 0) return false;
         
         // Shuffle the sentences
-        availableSentences = this.shuffleArray(availableSentences);
+        // availableSentences = this.shuffleArray(availableSentences);
+        availableSentences = TherapyUtils.shuffleArray(availableSentences);
         
         // Limit pool size if specified
         if (poolSize !== 'all') {
@@ -341,14 +349,14 @@ class SentencesSession {
         return true;
     }
 
-    shuffleArray(array) {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
-    }
+    // shuffleArray(array) {
+    //     const shuffled = [...array];
+    //     for (let i = shuffled.length - 1; i > 0; i--) {
+    //         const j = Math.floor(Math.random() * (i + 1));
+    //         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    //     }
+    //     return shuffled;
+    // }
 
     displayCurrentSentence() {
         if (this.sentencePool.length === 0) return;
@@ -386,7 +394,7 @@ class SentencesSession {
         // Auto-advance to next sentence after a short delay
         setTimeout(() => {
             this.nextSentence();
-        }, 500);
+        }, 200);
     }
 
     nextSentence() {
@@ -448,14 +456,25 @@ class SentencesSession {
         this.sessionData.endTime = new Date().toISOString();
         
         // Calculate final stats
-        const accuracy = this.stats.total > 0 ? Math.round((this.stats.correct / this.stats.total) * 100) : 0;
+
+        const finalStats = TherapyUtils.calculateFinalStats(this.sessionData.responses);
         const duration = this.timer.pausedTime || 0;
+
+        // const accuracy = this.stats.total > 0 ? Math.round((this.stats.correct / this.stats.total) * 100) : 0;
         
         // Update results screen
-        document.getElementById('final-duration').textContent = this.formatDuration(Math.floor(duration / 1000));
-        document.getElementById('final-total').textContent = this.stats.total;
-        document.getElementById('final-correct').textContent = this.stats.correct;
-        document.getElementById('final-accuracy').textContent = accuracy + '%';
+        document.getElementById('final-duration').textContent = TherapyUtils.formatDisplayTime(Math.floor(duration / 1000));
+        document.getElementById('final-total').textContent = finalStats.total;
+        document.getElementById('final-correct').textContent = finalStats.totalCorrect;
+        document.getElementById('final-accuracy').textContent = finalStats.accuracy + '%';
+
+        // document.getElementById('final-duration').textContent = this.formatDuration(Math.floor(duration / 1000));
+        // document.getElementById('final-total').textContent = this.stats.total;
+        // document.getElementById('final-correct').textContent = this.stats.correct;
+        // document.getElementById('final-accuracy').textContent = accuracy + '%';
+
+        // Show detailed responses
+        this.displayDetailedResults();
         
         // Show category breakdown
         this.displayCategoryBreakdown();
@@ -466,33 +485,64 @@ class SentencesSession {
         this.showScreen('results');
     }
 
+    displayDetailedResults() {
+        const detailsContainer = document.getElementById('response-details');
+        if (!detailsContainer) return;
+        
+        const responseDetails = TherapyUtils.generateResponseDetails(this.sessionData.responses);
+        
+        detailsContainer.innerHTML = `
+            <h4>Response Details (${responseDetails.length} items):</h4>
+            <div class="response-list">
+                ${responseDetails.map(detail => `
+                    <div class="response-item">
+                        <span class="response-text">${detail.text}</span>
+                        <span class="response-result ${detail.response}">${detail.response}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
     displayCategoryBreakdown() {
         const breakdown = document.getElementById('category-breakdown');
         const categoryStats = {};
         const allCategories = { ...CONFIG.sentenceCategories, ...storage.getCustomCategories().sentences };
+
+        const categoryBreakdown = TherapyUtils.generateCategoryBreakdown(this.sessionData.responses, allCategories);
         
-        // Calculate stats per category
-        this.sessionData.responses.forEach(response => {
-            if (!categoryStats[response.category]) {
-                categoryStats[response.category] = { correct: 0, total: 0 };
-            }
-            categoryStats[response.category].total++;
-            if (response.response === 'correct') {
-                categoryStats[response.category].correct++;
-            }
-        });
+        // // Calculate stats per category
+        // this.sessionData.responses.forEach(response => {
+        //     if (!categoryStats[response.category]) {
+        //         categoryStats[response.category] = { correct: 0, total: 0 };
+        //     }
+        //     categoryStats[response.category].total++;
+        //     if (response.response === 'correct') {
+        //         categoryStats[response.category].correct++;
+        //     }
+        // });
         
         breakdown.innerHTML = '';
         
-        Object.entries(categoryStats).forEach(([categoryId, stats]) => {
-            const categoryName = allCategories[categoryId]?.name || categoryId;
-            const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+        // Object.entries(categoryStats).forEach(([categoryId, stats]) => {
+        //     const categoryName = allCategories[categoryId]?.name || categoryId;
+        //     const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
             
+        //     const resultDiv = document.createElement('div');
+        //     resultDiv.className = 'category-result';
+        //     resultDiv.innerHTML = `
+        //         <span>${categoryName}</span>
+        //         <span>${stats.correct}/${stats.total} (${accuracy}%)</span>
+        //     `;
+        //     breakdown.appendChild(resultDiv);
+        // });
+
+        categoryBreakdown.forEach(category => {
             const resultDiv = document.createElement('div');
             resultDiv.className = 'category-result';
             resultDiv.innerHTML = `
-                <span>${categoryName}</span>
-                <span>${stats.correct}/${stats.total} (${accuracy}%)</span>
+                <span>${category.categoryName}</span>
+                <span>${category.totalCorrect}/${category.total} (${category.accuracy}%)</span>
             `;
             breakdown.appendChild(resultDiv);
         });
@@ -534,17 +584,17 @@ class SentencesSession {
         this.currentScreen = screenName;
     }
 
-    formatDuration(seconds) {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const secs = seconds % 60;
+    // formatDuration(seconds) {
+    //     const hours = Math.floor(seconds / 3600);
+    //     const minutes = Math.floor((seconds % 3600) / 60);
+    //     const secs = seconds % 60;
         
-        if (hours > 0) {
-            return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        } else {
-            return `${minutes}:${secs.toString().padStart(2, '0')}`;
-        }
-    }
+    //     if (hours > 0) {
+    //         return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    //     } else {
+    //         return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    //     }
+    // }
 }
 
 // Initialize when page loads

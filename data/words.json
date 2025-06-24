@@ -1,0 +1,34 @@
+{
+  "animals": {
+    "name": "Animals",
+    "words": ["dog", "cat", "cow", "pig", "bird", "fish", "lion", "bear", "frog", "duck", "tiger", "sheep", "fox"]
+  },
+  "colors": {
+    "name": "Colors", 
+    "words": ["red", "blue", "green", "yellow", "black", "white", "pink", "orange", "purple", "brown"]
+  },
+  "vehicles": {
+    "name": "Vehicles",
+    "words": ["car", "bus", "truck", "motorbike", "plane", "boat", "train", "ship", "helicopter", "aeroplane", "cycle"]
+  },
+  "fruits": {
+    "name": "Fruits",
+    "words": ["apple", "banana", "orange", "grapes", "pear", "peach", "watermelon", "strawberry", "kiwi", "mango"]
+  },
+  "vegetables": {
+    "name": "Vegetables", 
+    "words": ["carrot", "potato", "tomato", "onion", "capsicum", "lettuce", "cucumber", "beans", "peas", "corn", "ginger", "brinjal"]
+  },
+  "household": {
+    "name": "Household Items",
+    "words": ["chair", "table", "lamp", "bed", "door", "window", "spoon", "fork", "plate", "cup", "pillow"]
+  },
+  "months": {
+    "name": "Months of the Year",
+    "words": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+  },
+  "days": {
+    "name": "Days of the Week",
+    "words": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+  }
+}
